@@ -12265,6 +12265,8 @@ console.log(e.altKey, e.ctrlKey);
       }
       else if (corner === 'mtr' && target.hasRotatingPoint) {
         this.setCursor(this.rotationCursor);
+      }else if(corner === 'mbr' && target.hasRotatingPoint) {
+        this.setCursor(this.rotationCursor);
       }
       else {
         this.setCursor(this.defaultCursor);
@@ -15801,6 +15803,11 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
           from += top;
           to =  this.rotatingPointOffset;
         }
+        // ctx.beginPath();
+        // ctx.moveTo(0, from);
+        // ctx.lineTo(0, from, to);
+        // ctx.closePath();
+        // ctx.stroke();
         //ctx.beginPath();
         //ctx.moveTo(0, rotateHeight);
         //ctx.lineTo(0, rotateHeight - this.rotatingPointOffset);
