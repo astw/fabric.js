@@ -8883,6 +8883,7 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, /** @lends fab
       }
 
       switch (corner) {
+		case 'mbr':
         case 'mtr':
           return 'rotate';
         case 'ml':
@@ -10738,7 +10739,7 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, /** @lends fab
       if (corner in cursorOffset) {
         this.setCursor(this._getRotatedCornerCursor(corner, target, e));
       }
-      else if (corner === 'mtr' && target.hasRotatingPoint) {
+      else if ((corner === 'mtr' || corner === 'mbr') && target.hasRotatingPoint) {
         this.setCursor(this.rotationCursor);
       }
       else {
@@ -13641,6 +13642,7 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
           mr  = new fabric.Point((br.x + tr.x) / 2, (br.y + tr.y) / 2),
           mb  = new fabric.Point((br.x + bl.x) / 2, (br.y + bl.y) / 2),
           mtr = new fabric.Point(mt.x + sinTh * this.rotatingPointOffset, mt.y - cosTh * this.rotatingPointOffset);
+		  mbr = new fabric.Point(mb.x - sinTh * this.rotatingPointOffset, mb.y + cosTh * this.rotatingPointOffset);
       // debugging
 
       /* setTimeout(function() {
@@ -13662,7 +13664,8 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
         // middle
         ml: ml, mt: mt, mr: mr, mb: mb,
         // rotating point
-        mtr: mtr
+        mtr: mtr,
+		mbr: mbr
       };
 
       // set coordinates of the draggable boxes in the corners used to scale/rotate the image
@@ -14066,7 +14069,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
           continue;
         }
 
-        if (i === 'mtr' && !this.hasRotatingPoint) {
+        if ((i === 'mtr' || i=== 'mbr') && !this.hasRotatingPoint) {
           continue;
         }
 
@@ -14272,12 +14275,19 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
       if (this.hasRotatingPoint && this.isControlVisible('mtr') && !this.get('lockRotation') && this.hasControls) {
 
         var rotateHeight = -height / 2;
-
-        ctx.beginPath();
-        ctx.moveTo(0, rotateHeight);
-        ctx.lineTo(0, rotateHeight - this.rotatingPointOffset);
-        ctx.closePath();
-        ctx.stroke();
+		
+		var from = rotateHeight;
+		var to = - this.rotatingPointOffset;
+		if(this.ratationPointBottom) {
+			from += top;
+			to =  this.rotatingPointOffset;
+		}	
+			
+       // ctx.beginPath();
+       // ctx.moveTo(0, from);
+       // ctx.lineTo(0, from - to);
+       // ctx.closePath();
+       // ctx.stroke();
       }
 
       ctx.restore();
@@ -14392,12 +14402,19 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
       }
 
       // middle-top-rotate
-      if (this.hasRotatingPoint) {
+      if (this.hasRotatingPoint && !this.rotationPointBottom) {
         this._drawControl('mtr', ctx, methodName,
           left + width / 2,
           top - this.rotatingPointOffset);
       }
 
+	  // middle-bottom-rotate
+      if (this.hasRotatingPoint && this.rotationPointBottom) { 
+        this._drawControl('mbr', ctx, methodName,
+          left + width/2 - scaleOffset,
+         -100 + top + height + this.rotatingPointOffset - scaleOffset);
+      }
+ 
       ctx.restore();
 
       return this;
@@ -14490,7 +14507,8 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
           mt: true,
           mr: true,
           mb: true,
-          mtr: true
+          mtr: true,
+          mbr: true 
         };
       }
       return this._controlsVisibility;
