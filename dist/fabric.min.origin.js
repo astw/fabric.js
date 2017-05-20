@@ -14978,7 +14978,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
       if (this.hasRotatingPoint) {
         this._drawControl('mbr', ctx, methodName,
           left + width / 2,
-          top + height  + this.rotatingPointOffset);
+          top + height this.rotatingPointOffset);
       }
 
       ctx.restore();

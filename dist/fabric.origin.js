@@ -9143,7 +9143,6 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, /** @lends fab
 
       switch (corner) {
         case 'mtr':
-        case 'mbr':
           return 'rotate';
         case 'ml':
         case 'mr':
@@ -11052,7 +11051,7 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, /** @lends fab
       if (corner in cursorOffset) {
         this.setCursor(this._getRotatedCornerCursor(corner, target, e));
       }
-      else if ((corner === 'mtr' || corner ==='mbr')&& target.hasRotatingPoint) {
+      else if (corner === 'mtr' && target.hasRotatingPoint) {
         this.setCursor(this.rotationCursor);
       }
       else {
@@ -13791,7 +13790,7 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
 
     /**
      * Describe object's corner position in canvas element coordinates.
-     * properties are tl,mt,tr,ml,mr,bl,mb,br,mtr, mbr for the main controls.
+     * properties are tl,mt,tr,ml,mr,bl,mb,br,mtr for the main controls.
      * each property is an object with x, y and corner.
      * The `corner` property contains in a similar manner the 4 points of the
      * interactive area of the corner.
@@ -14164,8 +14163,7 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
             mt  = new fabric.Point((tr.x + tl.x) / 2, (tr.y + tl.y) / 2),
             mr  = new fabric.Point((br.x + tr.x) / 2, (br.y + tr.y) / 2),
             mb  = new fabric.Point((br.x + bl.x) / 2, (br.y + bl.y) / 2),
-            mtr = new fabric.Point(mt.x + sinTh * this.rotatingPointOffset, mt.y - cosTh * this.rotatingPointOffset),
-            mbr = new fabric.Point(mb.x + sinTh * this.rotatingPointOffset, mb.y + cosTh * this.rotatingPointOffset);
+            mtr = new fabric.Point(mt.x + sinTh * this.rotatingPointOffset, mt.y - cosTh * this.rotatingPointOffset);
       }
 
       // debugging
@@ -14181,7 +14179,6 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
          canvas.contextTop.fillRect(mr.x, mr.y, 3, 3);
          canvas.contextTop.fillRect(mt.x, mt.y, 3, 3);
          canvas.contextTop.fillRect(mtr.x, mtr.y, 3, 3);
-         canvas.contextTop.fillRect(mbr.x, mbr.y, 3, 3);
        }, 50); */
 
       var coords = {
@@ -14196,7 +14193,6 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
         coords.mb = mb;
         // rotating point
         coords.mtr = mtr;
-        coords.mbr = mbr;
       }
       return coords;
     },
@@ -14706,7 +14702,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
           continue;
         }
 
-        if ((i === 'mtr' ||(i === 'mbr')) && !this.hasRotatingPoint) {
+        if (i === 'mtr' && !this.hasRotatingPoint) {
           continue;
         }
 
@@ -14845,17 +14841,6 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
         ctx.stroke();
       }
 
-      if (this.hasRotatingPoint && this.isControlVisible('mbr') && !this.get('lockRotation') && this.hasControls) {
-
-        var rotateHeight = height / 2;
-
-        ctx.beginPath();
-        ctx.moveTo(0, rotateHeight);
-        ctx.lineTo(0, rotateHeight + this.rotatingPointOffset);
-        ctx.closePath();
-        ctx.stroke();
-      }
-
       ctx.restore();
       return this;
     },
@@ -14974,13 +14959,6 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
           top - this.rotatingPointOffset);
       }
 
-       // middle-bottom-rotate
-      if (this.hasRotatingPoint) {
-        this._drawControl('mbr', ctx, methodName,
-          left + width / 2,
-          top + height  + this.rotatingPointOffset);
-      }
-
       ctx.restore();
 
       return this;
@@ -15014,7 +14992,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
 
     /**
      * Returns true if the specified control is visible, false otherwise.
-     * @param {String} controlName The name of the control. Possible values are 'tl', 'tr', 'br', 'bl', 'ml', 'mt', 'mr', 'mb', 'mtr','mbr'.
+     * @param {String} controlName The name of the control. Possible values are 'tl', 'tr', 'br', 'bl', 'ml', 'mt', 'mr', 'mb', 'mtr'.
      * @returns {Boolean} true if the specified control is visible, false otherwise
      */
     isControlVisible: function(controlName) {
@@ -15023,7 +15001,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
 
     /**
      * Sets the visibility of the specified control.
-     * @param {String} controlName The name of the control. Possible values are 'tl', 'tr', 'br', 'bl', 'ml', 'mt', 'mr', 'mb', 'mtr','mbr'.
+     * @param {String} controlName The name of the control. Possible values are 'tl', 'tr', 'br', 'bl', 'ml', 'mt', 'mr', 'mb', 'mtr'.
      * @param {Boolean} visible true to set the specified control visible, false otherwise
      * @return {fabric.Object} thisArg
      * @chainable
@@ -15045,7 +15023,6 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
      * @param {Boolean} [options.tl] true to enable the top-left control, false to disable it
      * @param {Boolean} [options.tr] true to enable the top-right control, false to disable it
      * @param {Boolean} [options.mtr] true to enable the middle-top-rotate control, false to disable it
-     * @param {Boolean} [options.mbr] true to enable the middle-bottom-rotate control, false to disable it
      * @return {fabric.Object} thisArg
      * @chainable
      */
@@ -15074,8 +15051,7 @@ fabric.util.object.extend(fabric.Object.prototype, /** @lends fabric.Object.prot
           mt: true,
           mr: true,
           mb: true,
-          mtr: true,
-          mbr: true
+          mtr: true
         };
       }
       return this._controlsVisibility;
@@ -26461,8 +26437,7 @@ fabric.util.object.extend(fabric.IText.prototype, /** @lends fabric.IText.protot
       mt: false,
       mr: true,
       mb: false,
-      mtr: false,
-      mbr: true
+      mtr: true
     };
   };
 
